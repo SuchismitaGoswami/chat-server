@@ -7,12 +7,12 @@
 var app = require('../app');
 var debug = require('debug')('chat-server:server');
 var http = require('http');
-
+var socket = require('socket.io')
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
 /**
@@ -20,6 +20,26 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = socket(server);
+io.sockets.on('connection', function(socket) {
+  socket.on('join', function(username) {
+      socket.username = username;
+      console.log(username)
+      io.emit('newMessage', '🔵 ' + socket.username + ' join the chat..');
+  });
+
+  socket.on('disconnect', function(username) {
+      io.emit('is_online', '🔴 ' + socket.username + ' left the chat..');
+  })
+
+  socket.on('newMessage', function(message) {
+      io.emit('newMessage', '<strong>' + socket.username + '</strong>: ' + message);
+  });
+
+});
+
+
+
 
 /**
  * Listen on provided port, on all network interfaces.
