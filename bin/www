@@ -25,15 +25,16 @@ io.sockets.on('connection', function(socket) {
   socket.on('join', function(username) {
       socket.username = username;
       console.log(username)
-      io.emit('newMessage', '🔵 ' + socket.username + ' join the chat..');
+      io.emit('newMessage',  {'username':`${socket.username}`,'message': 'join the chat...'});
   });
 
   socket.on('disconnect', function(username) {
-      io.emit('is_online', '🔴 ' + socket.username + ' left the chat..');
+      io.emit('is_online',  {'username':`${socket.username}`,'message': 'left the chat...'});
   })
 
-  socket.on('newMessage', function(message) {
-      io.emit('newMessage', '<strong>' + socket.username + '</strong>: ' + message);
+  socket.on('newMessage', function(object) {
+    console.log(JSON.stringify(object));
+      io.emit('newMessage',  {'username':`${object.username}`,'message': `${object.message}`});
   });
 
 });
