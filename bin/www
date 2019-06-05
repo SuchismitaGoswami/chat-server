@@ -21,11 +21,15 @@ app.set('port', port);
 
 var server = http.createServer(app);
 var io = socket(server);
+const chatRooms = [];
+
 io.sockets.on('connection', function(socket) {
-  socket.on('join', function(username) {
+  socket.on('join', function(username,chatRoomName) {
       socket.username = username;
-      console.log(username)
-      io.emit('newMessage',  {'username':`${socket.username}`,'message': 'join the chat...'});
+      console.log(username,chatRoomName.trim().length);
+      socket.join(chatRoomName.trim());
+      socket.broadcast.to(chatRoomName.trim()).emit('newMessage',  {'username':`${socket.username}`,'message': 'join the chat...'});
+      // io.emit('newMessage',  {'username':`${socket.username}`,'message': 'join the chat...'});
   });
 
   socket.on('disconnect', function(username) {
@@ -34,7 +38,10 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('newMessage', function(object) {
     console.log(JSON.stringify(object));
-      io.emit('newMessage',  {'username':`${object.username}`,'message': `${object.message}`});
+    console.log(object.chatRoomName.trim().length);
+    // socket.join(object.chatRoomName);
+    io.in(object.chatRoomName.trim()).emit('newMessage',  {'username':`${object.username}`,'message': `${object.message}`});
+      // io.emit('newMessage',  {'username':`${object.username}`,'message': `${object.message}`});
   });
 
 });
